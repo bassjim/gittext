@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+      <div id="container" class="container">
+          <select id="city" class="form-control">
+
+          </select>
+        <div class="row">
+
+        </div>
+    </div>
+
+
+    <script src="Scripts/jquery-3.6.0.min.js"></script>
+    <script src="Scripts/bootstrap.bundle.min.js"></script>
+    <script>
+        var item = "";
+        var selectedCity = "";
+
+        $('#city').change(()=> {
+            selectedCity = city.options[city.selectedIndex].innerText;
+            console.log(selectedCity);
+            getTravelData(selectedCity);
+        });
+        getTravelData();
+
+        function getTravelData(myCity) {
+            $('#container>.row').empty();
+            
+            $.ajax({
+                type: 'get',
+                url: 'https://data.coa.gov.tw/OpenData/Service/OpenData/ODwsv/ODwsvTravelStay.aspx',
+                success: function (data) {
+
+                    console.log(data);
+                    var url = "", creditCard = "", travelCard = "";
+                    var city = [], cityResult = [];
+                    for (var i = 0; i < data.length; i++) {
+
+                        if (data[i].City == myCity) {
+
+                            if (data[i].Url == "") {
+                                url = "";
+                            }
+                            else {
+                                url = '<a href="' + data[i].Url + '" target="_blank"><img src="https://cdn-icons.flaticon.com/png/512/2550/premium/2550369.png?token=exp=1638762511~hmac=31adcbaa2e710510b0eb8e8d4dbeb9d3" height="30"></a>';
+                            }
+                            creditCard = data[i].CreditCard == "True" ? '<img src="https://png.pngtree.com/png-clipart/20190520/original/pngtree-credit-card-glyph-black-icon-png-image_3755418.jpg" height="30" />' : "";
+                            travelCard = data[i].TravelCard == "True" ? '<img src="https://www.07168.net/phone/images/8000_03.jpg" height="30" />' : "";
+                            item = `<div class="card mt-5 col-lg-4 col-sm-6">
+                                        <p><img src="${data[i].Photo}"  class="img-thumbnail" /></p>
+                                        <h3>${data[i].Name} </h3>
+                                        <h6>${data[i].Tel} ${data[i].Address}</h6>
+                                        <h6>${data[i].OpenHours}</h6>
+                                        <p>${url} <img title="主人的話" data-placement="right" data-toggle="popover" data-content='${data[i].HostWords}' src='https://uxwing.com/wp-content/themes/uxwing/download/07-web-app-development/more-info.png'  height="30" />
+                                            ${creditCard}  ${travelCard}
+                                        </p>
+                                        <!--button class="btn btn-success" title="主人的話" data-placement="right" data-toggle="popover" data-content="${data[i].HostWords}">主人的話</button-->
+                                    </div>`;
+                            $('#container>.row').append(item);
+
+                        }
+
+                        //$('#city').append(`<option>${data[i].City}</option>`);
+                        city.push(data[i].City);
+
+                    }
+
+                    console.log(city);
+                    // city.map();
+                    cityResult = city.filter((item, index) => city.indexOf(item) === index);
+                    console.log(cityResult);
+                    $('#city').empty();
+                    $('#city').append(`<option>請選擇縣市</option>`);
+
+                    var selected = ""
+                    cityResult.forEach(item => {
+                        selected = item == myCity ? "selected" : "";
+                        $('#city').append(`<option ${selected}>${item}</option>`)
+                    });
+
+                    //city.set();
+
+                    $('[data-toggle="popover"]').popover();
+                }
+
+            });
+
+        }
+       
+    </script>
+</body>
+
+</html>
